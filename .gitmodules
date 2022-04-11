@@ -1,3 +1,7 @@
 [submodule "kklib/mimalloc"]
 	path = kklib/mimalloc
 	url = https://github.com/microsoft/mimalloc
+
+[submodule "kklib/xxHash"]
+	path = kklib/xxHash
+	url = https://github.com/Cyan4973/xxHash.git
