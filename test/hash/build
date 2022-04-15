@@ -1,0 +1,2 @@
+zig build-lib -fcompiler-rt -lc -Ikklib/include -Ikklib/xxHash test/hash/hash.zig
+koka --cclinkopts=libhash.a --cclib=xxhash xxh32.kk
