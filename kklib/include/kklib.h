@@ -94,12 +94,13 @@ static inline bool kk_tag_is_raw(kk_tag_t tag) {
   Headers
 --------------------------------------------------------------------------------------*/
 
+#include <signal.h>
 
 // The reference count is 0 for a unique reference (for a faster free test in drop).
 // Reference counts larger than 0x8000000 (i.e. < 0) use atomic increment/decrement (for thread shared objects).
 // (Reference counts are always 32-bit (even on 64-bit) platforms but get "sticky" if
 //  they get too large and in such case we never free the object, see `refcount.c`)
-typedef uint32_t kk_refcount_t;
+typedef sig_atomic_t kk_refcount_t;
 
 // Are there (possibly) references from other threads? (includes static variables)
 static inline bool kk_refcount_is_thread_shared(kk_refcount_t rc) {
@@ -119,7 +120,7 @@ typedef struct kk_header_s {
   uint8_t   scan_fsize;  // number of fields that should be scanned when releasing (`scan_fsize <= 0xFF`, if 0xFF, the full scan size is the first field)
   uint8_t   _field_idx;  // private: only used during stack-less freeing and marking (see `refcount.c`)
   uint16_t  tag;         // constructor tag
-  _Atomic(kk_refcount_t) refcount; // reference count  (last to reduce code size constants in kk_header_init)
+  kk_refcount_t refcount; // reference count  (last to reduce code size constants in kk_header_init)
 } kk_header_t;
 
 #define KK_SCAN_FSIZE_MAX (0xFF)
@@ -248,11 +249,11 @@ static inline kk_decl_pure kk_ssize_t kk_block_scan_fsize(const kk_block_t* b) {
 }
 
 static inline kk_decl_pure kk_refcount_t kk_block_refcount(const kk_block_t* b) {
-  return kk_atomic_load_relaxed(&b->header.refcount);
+  return b->header.refcount;
 }
 
 static inline void kk_block_refcount_set(kk_block_t* b, kk_refcount_t rc) {
-  return kk_atomic_store_relaxed(&b->header.refcount, rc);
+  b->header.refcount = rc;
 }
 
 static inline kk_decl_pure bool kk_block_is_unique(const kk_block_t* b) {
