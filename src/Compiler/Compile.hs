@@ -95,6 +95,7 @@ import Platform.Config        ( version, exeExtension, dllExtension, libPrefix, 
 import Backend.CSharp.FromCore    ( csharpFromCore )
 import Backend.JavaScript.FromCore( javascriptFromCore )
 import Backend.C.FromCore         ( cFromCore )
+import Backend.Zig.FromCore       ( zigFromCore )
 
 import qualified Core.Core as Core
 import Core.Simplify( simplifyDefs )
